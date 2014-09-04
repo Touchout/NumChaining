@@ -1,0 +1,37 @@
+package com.touchout.game.scene2D;
+
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.touchout.game.Assets;
+
+public class NumBlockActor extends Actor
+{
+	public int Number;
+	public boolean Solved = false;
+	
+	public NumBlockActor(Integer number, float x, float y, float width, float height)
+	{
+		Number = number;
+		setBounds(x, y, width, height);
+	}
+	
+	@Override
+	public void draw(Batch batch, float parentAlpha) 
+	{
+		if(this.Solved)
+			batch.setColor(Color.DARK_GRAY);
+		
+		batch.draw(Assets.NumBlockTextures[this.Number]
+				,this.getX()
+				,this.getY()
+				,this.getWidth()
+				,this.getHeight());
+		
+		batch.setColor(Color.WHITE);
+	}
+}
