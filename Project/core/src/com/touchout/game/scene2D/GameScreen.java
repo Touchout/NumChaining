@@ -5,113 +5,185 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Table.Debug;
 import com.badlogic.gdx.utils.Logger;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.touchout.game.Assets;
 import com.touchout.game.Config;
 import com.touchout.game.NumChaining;
+import com.touchout.game.event.BlockSolvedTEvent;
+import com.touchout.game.event.LockBoardTEvent;
+import com.touchout.game.event.TEvent;
+import com.touchout.game.event.TEventHandler;
 
-public class GameScreenWithStage extends ScreenAdapter 
+public class GameScreen extends ScreenAdapter
 {
 	Logger logger = new Logger("game");
 	final NumChaining GAME;
-	//final NumBoard board;
-	//final NumBoard board2;
 	OrthographicCamera _camera;
 	
-	String _txtTime;
-	float _gameTime;
-	int _score;
+	//Game State
+	GameState _gameState;
 	
-	GameLevelExtStage _currentLevel;
-	boolean _gameOver = false;
+	//Stages
+	GameStage _gameStage;
+	Stage _uiStage;
 	
+	//Actors, Groups
+	ResultingUI _resultingUI;
 	
-	
-	public GameScreenWithStage(NumChaining game)
+	public GameScreen(NumChaining game)
 	{
 		GAME = game;
-		//board = new NumBoard(new Vector2(50,50), Config.COLUMN_COUNT, Config.ROW_COUNT);
-		//board2 = new NumBoard(new Vector2(85,600), Config.COLUMN_COUNT, Config.ROW_COUNT);
-		_currentLevel = new GameLevelExtStage(GAME.batch, Config.ROW_COUNT, Config.COLUMN_COUNT);
-		Gdx.input.setInputProcessor(_currentLevel);
 		
+		//Set Game State
+		_gameState = new GameState();
+		
+		//Set Game Stage
+		_gameStage = new GameStage(Config.ROW_COUNT, Config.COLUMN_COUNT, GAME.batch);
+		_gameStage.getBoard().getTEventBroadcaster().addTEventHandler(_gameState);
+		_gameStage.getBoard().getTEventBroadcaster().addTEventHandler(new TEventHandler() {			
+			@Override
+			public void handle(TEvent event) {
+				if(event instanceof LockBoardTEvent)
+				{
+					_gameState.setPenalty(((LockBoardTEvent) event).Time);
+					((NumBoardGroup)event.getSender()).lock();
+				}
+			}
+		});
+		_gameStage.addListener(new InputListener()
+		{
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) 
+			{
+				if(!_gameState.IsPaying())
+					_gameState.setPlaying(true);
+				return false;
+			}
+		});
+		Gdx.input.setInputProcessor(_gameStage);
+		
+		//Set UI Stage
+		_resultingUI = new ResultingUI();
+		_resultingUI.setRestartListener(new InputListener(){
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) 
+			{
+			
+				return true;
+			}
+			
+			@Override
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) 
+			{
+				restart();
+			}
+		});
+		_uiStage = new Stage(new FitViewport(Config.FRUSTUM_WIDTH, Config.FRUSTUM_HEIGHT), GAME.batch);
+		_uiStage.addActor(_resultingUI);
+		
+		//Set Camera
 		_camera = new OrthographicCamera();
 		_camera.setToOrtho(false, Config.FRUSTUM_WIDTH, Config.FRUSTUM_HEIGHT);
 		
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 		logger.setLevel(Logger.DEBUG);
 		
-		_gameTime = 30;
-		_txtTime = "";
-		
 		Assets.bgMusic.play();
+	}
+	
+	private void restart() 
+	{
+		_gameState.initialize();
+		_gameStage.renewBoard();
+		_resultingUI.initialize();
+		Gdx.input.setInputProcessor(_gameStage);
+		Assets.bgMusic.play();
+	}
+	
+	@Override
+	public void resize(int width, int height) 
+	{
+		_gameStage.getViewport().update(width, height);
+	}
+	
+	private void logicalProcess(float delta) 
+	{
+		//If game time's up, set game over 
+		if(_gameState.getGameTime() <= 0)
+		{
+			if(!_gameState.isGameOver())
+			{
+				Assets.bgMusic.stop();
+				Assets.endSound.play();
+				
+				_gameState.setGameOver(true);
+				_resultingUI.setScore(_gameState.getScoreString());
+				
+				//Set input processor to UI stage, prevent touch to game board
+				Gdx.input.setInputProcessor(_uiStage);
+			}			
+		}
+		else
+		{
+			//If current board is solved, renew one to keep playing
+			if(_gameStage.getBoardSolved())
+			{
+				_gameStage.renewBoard();
+			}
+			
+			//Update Game Time
+			if(_gameState.IsPaying())
+			{
+				_gameState.elapseGameTime(delta);
+				
+				if(_gameState.checkPenaltyOver(delta))
+					_gameStage.getBoard().unlock();
+			}
+		}
 	}
 	
 	@Override
 	public void render(float delta) 
 	{
-		if(_gameTime <= 0)
+		//Perform game logical process
+		logicalProcess(delta);
+		
+		//Clear
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);		
+		
+		//Draw gaming component (board...etc)
+		_camera.update();
+		_gameStage.draw();
+		_gameStage.act();
+		
+		//Draw UI
+		if(_gameState.isGameOver())
 		{
-			if(_gameOver == false)
-			{
-				Assets.bgMusic.stop();
-				Assets.endSound.play();
-			}
-			_gameOver = true;
-			_currentLevel._finished = true;
+			_uiStage.draw();
+			_uiStage.act();
 		}
-		else
-		{
-			if(_currentLevel._finished)
-			{
-				_score = _currentLevel.Score;
-				_currentLevel = new GameLevelExtStage(GAME.batch, Config.ROW_COUNT, Config.COLUMN_COUNT);
-				_currentLevel.Score = _score;
-				Gdx.input.setInputProcessor(_currentLevel);
-				_currentLevel._playing = true;
-			}
-			
-			//Update Game Time
-			if(_currentLevel._playing)
-			{
-				_gameTime -= delta;
-				int minutes = (int)(_gameTime / 60.0);
-				int seconds = (int)(_gameTime - minutes * 60);
-				_txtTime = "" + minutes;
-				if (seconds < 10) {
-					_txtTime += ":0" + seconds;
-				}
-				else {
-					_txtTime += ":" + seconds;
-				}
-			}
-			
-			//UpdateGame
-			//if(_currentLevel.Update(_camera))
-				//_score ++;
-			
-			//Clear
-			Gdx.gl.glClearColor(0, 0, 0, 1);
-			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-			
-			//draw board
-			_camera.update();
-			_currentLevel.draw();
-			
-			GAME.batch.setProjectionMatrix(_camera.combined);		
-			GAME.batch.begin();
-			//_currentLevel.Draw(GAME.batch);
-			//draw time
-			float posX = (Config.FRUSTUM_WIDTH - Assets.TimeFont.getMultiLineBounds(_txtTime).width) / 2;
-			float posY = (Config.FRUSTUM_HEIGHT + Assets.TimeFont.getMultiLineBounds(_txtTime).height 
-							+ Config.BOARD_UPPER_BOUND) /2;
-			Assets.TimeFont.draw(GAME.batch, _txtTime, posX, posY);
-			Assets.ScoreFont.draw(GAME.batch, String.format("%010d",_currentLevel.Score), 20, 1260);
-			
-			GAME.batch.end();
-			//board2.render(GAME.batch,true);
-		}
-	}
-	
-	 
+		
+		//Draw HUDs (time, score..etc)
+		GAME.batch.setProjectionMatrix(_camera.combined);		
+		GAME.batch.begin();
+		
+		//draw time
+		float posX = (Config.FRUSTUM_WIDTH - Assets.TimeFont.getMultiLineBounds(_gameState.getGameTimeString()).width) / 2;
+		float posY = (Config.FRUSTUM_HEIGHT + Assets.TimeFont.getMultiLineBounds(_gameState.getGameTimeString()).height 
+						+ Config.BOARD_UPPER_BOUND) /2;
+		Assets.TimeFont.draw(GAME.batch, _gameState.getGameTimeString(), posX, posY);
+
+		//draw score
+		Assets.ScoreFont.draw(GAME.batch, String.format("%010d", _gameState.getScore()), 20, 1260);
+		
+		GAME.batch.end();
+	}	 
 }
