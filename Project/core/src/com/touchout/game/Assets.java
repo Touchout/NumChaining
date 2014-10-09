@@ -7,17 +7,21 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeType;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.utils.Logger;
 
 public class Assets 
 {
+	public static Logger globalLogger;
 	public static TextureRegion[] NumBlockTextures;
 	//public static TextureRegion NumBlockTextureReverse;
 	public static Sound Correct1, Correct2, Success, Wrong, endSound;
 	public static Music bgMusic;
 	public static BitmapFont TimeFont;
 	public static BitmapFont ScoreFont;
+	public static BitmapFont ComboFont;
 	
 	public static void Load() 
 	{
@@ -48,6 +52,8 @@ public class Assets
 		TimeFont = fontGenerator.generateFont(parameter);
 		parameter.size = 50;
 		ScoreFont = fontGenerator.generateFont(parameter);
+		parameter.characters = "0123456789Combs";
+		ComboFont = fontGenerator.generateFont(parameter);
 		fontGenerator.dispose();
 	}
 	

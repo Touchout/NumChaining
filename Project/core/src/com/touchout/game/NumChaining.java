@@ -6,8 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.touchout.game.scene2D.GameScreen;
-import com.touchout.game.scene2D.MenuScreen;
+import com.badlogic.gdx.utils.Logger;
 
 public class NumChaining extends Game 
 {
@@ -16,11 +15,14 @@ public class NumChaining extends Game
 	@Override
 	public void create () 
 	{
+		Assets.globalLogger = new Logger("Global");
+		Assets.globalLogger.setLevel(Logger.DEBUG);
 		Assets.Load();
 		batch = new SpriteBatch();
 		//setScreen(new GameScreen(this));
-		setScreen(new GameScreen(this));
+		//setScreen(new GameScreen(this));
 		//setScreen(new MenuScreen());
+		setScreen(new PlaygroundScreen(this));
 	}
 
 	@Override

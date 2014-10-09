@@ -3,6 +3,7 @@ package com.touchout.game.event;
 public class TEvent 
 {
 	private Object Sender;
+	public Object Tag;
 	
 	public TEvent(Object sender)
 	{

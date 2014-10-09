@@ -11,7 +11,12 @@ public class Config
 	public static final int BLOCK_WIDTH = 150;
 	public static final int BLOCK_HEIGHT = 150;
 	
+	/**
+	 * 遊戲版的上緣位置
+	 */
 	public static final int BOARD_UPPER_BOUND = 700;
 	
 	public static final int BLOCK_MARGIN = 10;
+	
+	public static final int DEFUALT_GAME_TIME = 30;
 }
