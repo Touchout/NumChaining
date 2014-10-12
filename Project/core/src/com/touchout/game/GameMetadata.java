@@ -1,49 +1,56 @@
 package com.touchout.game;
 
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.touchout.game.component.ComboBar;
 import com.touchout.game.component.ComboCounter;
 import com.touchout.game.event.BlockSolvedTEvent;
 import com.touchout.game.event.TEvent;
-import com.touchout.game.event.TEventCode;
 import com.touchout.game.event.TEventHandler;
 
 public class GameMetadata extends Group implements TEventHandler
 {
-	String _txtTime;
-	float _gameTime;
-	int _score;
-	float _remainPenaltyTime;
-	float _remainComboTime;
+	private String _txtTime;
+	private float _gameTime;
+	private int _score;
+	private float _remainPenaltyTime;
+	private float _remainComboTime;
 	
-	ComboCounter comboCounter;
+	private ComboCounter _comboCounter;
+	private ComboBar _comboBar;
 	
 	public int getComboCount() {
-		return comboCounter.ComboCount;
+		return _comboCounter.ComboCount;
 	}
 
 	public void increaseComboCount() 
 	{
-		comboCounter.ComboCount++;
+		_comboCounter.ComboCount++;
 	}
 	
-	public void clearComboCount() {
-		comboCounter.ComboCount = 0;
+	public void clearComboCount() 
+	{
+		_comboCounter.ComboCount = 0;
 	}
 
 	public float getRemainComboTime() {
 		return _remainComboTime;
 	}
 
-	public void setRemainComboTime(float _remainComboTime) {
-		this._remainComboTime = _remainComboTime;
+	public void setRemainComboTime(float remainComboTime) 
+	{
+		this._remainComboTime = remainComboTime;
+		this._comboBar.Current = remainComboTime;
 	}
 
 	public GameMetadata()
 	{
-		comboCounter = new ComboCounter(450, Config.BOARD_UPPER_BOUND + 50);
-		addActor(comboCounter);
+		_comboCounter = new ComboCounter(450, Config.BOARD_UPPER_BOUND + 50);
+		_comboBar = new ComboBar(10, Config.BOARD_UPPER_BOUND + 100, Config.FRUSTUM_WIDTH - 30, 20);
+		_comboBar.Max = 1;
+		_comboBar.Current = 0;
+		addActor(_comboCounter);
+		addActor(_comboBar);
 		setTouchable(Touchable.disabled);
 		initialize();
 	}
@@ -53,9 +60,9 @@ public class GameMetadata extends Group implements TEventHandler
 		_score = 0;
 		_gameTime = Config.DEFUALT_GAME_TIME;
 		_txtTime = "";
-		_remainPenaltyTime = 0;
-		_remainComboTime = 0;
-		comboCounter.ComboCount = 0;
+		this.setPenaltyTime(0);
+		this.setRemainComboTime(1);
+		_comboCounter.ComboCount = 0;
 	}
 
 	public String getGameTimeString() 
@@ -81,12 +88,12 @@ public class GameMetadata extends Group implements TEventHandler
 		}
 		
 		//update combo time
-		_remainComboTime -= delta;
-		_remainComboTime = _remainComboTime < 0 ? 0 : _remainComboTime;
-		if(_remainComboTime <= 0) clearComboCount();
+		float remainComboTime = this.getRemainComboTime() - delta;
+		this.setRemainComboTime(remainComboTime < 0 ? 0 : remainComboTime);
+		if(this.getRemainComboTime() <= 0) clearComboCount();
 	}
 	
-	public boolean checkPenaltyOver(float delta) 
+	public boolean isPenaltyOver(float delta) 
 	{
 		if(_remainPenaltyTime > 0)
 		{
@@ -98,7 +105,7 @@ public class GameMetadata extends Group implements TEventHandler
 		return false;
 	}
 	
-	public void setPenalty(float value) 
+	public void setPenaltyTime(float value) 
 	{
 		_remainPenaltyTime = value;
 	}
@@ -122,6 +129,9 @@ public class GameMetadata extends Group implements TEventHandler
 	public void handle(TEvent event) 
 	{
 		if(event instanceof BlockSolvedTEvent)
+		{
 			_score += ((BlockSolvedTEvent)event).Reward;
+			//_comboBar.reset();
+		}
 	}
 }

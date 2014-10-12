@@ -45,7 +45,7 @@ public class PlayingStater extends GameStater
 		//Update Game Time
 		_gameScreen.getMetadata().elapseGameTime(delta);
 		
-		if(_gameScreen.getMetadata().checkPenaltyOver(delta))
+		if(_gameScreen.getMetadata().isPenaltyOver(delta))
 			_gameScreen.getBoard().unlock();
 		
 		return GameStateCode.Playing;
@@ -56,7 +56,7 @@ public class PlayingStater extends GameStater
 	{
 		if(event instanceof LockBoardTEvent)
 		{			
-			_gameScreen.getMetadata().setPenalty(((LockBoardTEvent) event).Time);
+			_gameScreen.getMetadata().setPenaltyTime(((LockBoardTEvent) event).Time);
 			((NumBoardGroup)event.getSender()).lock();
 		}
 		

@@ -20,9 +20,9 @@ public class NumChaining extends Game
 		Assets.Load();
 		batch = new SpriteBatch();
 		//setScreen(new GameScreen(this));
-		//setScreen(new GameScreen(this));
+		setScreen(new GameScreen(this));
 		//setScreen(new MenuScreen());
-		setScreen(new PlaygroundScreen(this));
+		//setScreen(new PlaygroundScreen(this));
 	}
 
 	@Override
