@@ -5,11 +5,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.scenes.scene2d.ui.Table.Debug;
 import com.badlogic.gdx.utils.Logger;
 import com.touchout.game.Assets;
+import com.touchout.game.Config;
+import com.touchout.game.GameMetadata;
 import com.touchout.game.GameScreen;
-import com.touchout.game.component.NumBoardGroup;
+import com.touchout.game.component.NumBoard;
 import com.touchout.game.event.BlockSolvedTEvent;
 import com.touchout.game.event.LockBoardTEvent;
 import com.touchout.game.event.TEvent;
+import com.touchout.game.event.TEventCode;
 
 public class PlayingStater extends GameStater 
 {
@@ -22,13 +25,23 @@ public class PlayingStater extends GameStater
 	@Override
 	public GameStateCode update(float delta) 
 	{
+		GameMetadata metadata = _gameScreen.getMetadata();
+		
 		//time's up
-		if(_gameScreen.getMetadata().getGameTime() <= 0)
+		if(metadata.getGameTime() <= 0)
 		{
 			Assets.bgMusic.stop();
 			Assets.endSound.play();
 			
-			_gameScreen.getResultingUI().setScore(_gameScreen.getMetadata().getScoreString());
+			_gameScreen.getResultingUI().setScore(metadata.getScoreString());
+			int highScore = Assets.preferences.getInteger("highScore");
+			if(metadata.getScore() > highScore)
+			{
+				Assets.preferences.putInteger("highScore", metadata.getScore());
+				highScore = metadata.getScore();
+				Assets.preferences.flush();
+			}
+			_gameScreen.getResultingUI().setHighScore(highScore);
 			
 			//Set input processor to UI stage, prevent touch to game board
 			Gdx.input.setInputProcessor(_gameScreen.getUiStage());
@@ -43,10 +56,14 @@ public class PlayingStater extends GameStater
 		}
 		
 		//Update Game Time
-		_gameScreen.getMetadata().elapseGameTime(delta);
+		metadata.update(delta);
 		
-		if(_gameScreen.getMetadata().isPenaltyOver(delta))
-			_gameScreen.getBoard().unlock();
+		if(_gameScreen.getBoard().isLocked())
+			if(metadata.isPenaltyOver())
+			{
+				Assets.bgMusic.play();
+				_gameScreen.getBoard().unlock();
+			}
 		
 		return GameStateCode.Playing;
 	}
@@ -54,27 +71,53 @@ public class PlayingStater extends GameStater
 	@Override
 	public void handle(TEvent event) 
 	{
+		GameMetadata metadata = _gameScreen.getMetadata();
+		
 		if(event instanceof LockBoardTEvent)
 		{			
-			_gameScreen.getMetadata().setPenaltyTime(((LockBoardTEvent) event).Time);
-			((NumBoardGroup)event.getSender()).lock();
+			LockBoardTEvent realEvent = (LockBoardTEvent) event;
+			if(realEvent.Time >= 0)
+				metadata.setPenaltyTime(realEvent.Time);
+			else {
+				metadata.resetPenaltyTime();
+			}
+			((NumBoard)event.getSender()).lock();
+			Assets.bgMusic.pause();
 		}
 		
 		if(event instanceof BlockSolvedTEvent)
 		{
-			if(_gameScreen.getMetadata().getRemainComboTime() == 0)
+			if(metadata.getRemainComboTime() == 0)
 			{
-				_gameScreen.getMetadata().clearComboCount();
+				metadata.clearComboCount();
+				metadata.resetLevel();
 			}
 			
-			_gameScreen.getMetadata().increaseComboCount();
+			metadata.increaseComboCount();
+			if(metadata.increaseComboBonusCount() == metadata.getComboBonusTarget())
+			{
+				Assets.Correct3.play();
+				metadata.increasGameTime(2);
+				_gameScreen.displayTimeBonusHint();
+				metadata.clearComboBonusCount();
+				metadata.nextLevel();
+			}
 			
-			int reward = ((BlockSolvedTEvent) event).Reward * _gameScreen.getMetadata().getComboCount();
-			_gameScreen.getMetadata().increaseScore(reward);
+			int reward = ((BlockSolvedTEvent) event).Reward * metadata.getComboCount();
+			metadata.increaseScore(reward);
 			
-			_gameScreen.getMetadata().setRemainComboTime(1);
-			
-			Assets.globalLogger.debug("Combo: " + _gameScreen.getMetadata().getComboCount());
+			metadata.resetRemainComboTime();
+		}
+		
+		if(event.Tag == TEventCode.BoardSolved)
+		{
+			Assets.globalLogger.debug("BoardsCleared: " + metadata.getBoardsClearCount());
+			Assets.globalLogger.debug("Level: " + metadata.getLevel());
+//			if(metadata.increaseBoardsClearCount() % 3 == 0)
+//			{
+//				metadata.nextLevel();
+//				Assets.globalLogger.debug("Level: " + metadata.getLevel());
+//			}
 		}
 	}
 

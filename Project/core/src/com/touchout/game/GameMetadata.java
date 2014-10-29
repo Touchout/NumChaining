@@ -1,5 +1,7 @@
 package com.touchout.game;
 
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.touchout.game.component.ComboBar;
@@ -13,44 +15,129 @@ public class GameMetadata extends Group implements TEventHandler
 	private String _txtTime;
 	private float _gameTime;
 	private int _score;
+	private float _specPenaltyTime;
 	private float _remainPenaltyTime;
+	private float _specComboTime;
 	private float _remainComboTime;
+	private int _comboCount;
+	private int _comboBonusCount;
+	private int _level;
+	private int _boardsClearCount;
+	private int _comboBonusTarget;
 	
 	private ComboCounter _comboCounter;
 	private ComboBar _comboBar;
+	private ComboBar _comboAccumulator;
 	
-	public int getComboCount() {
-		return _comboCounter.ComboCount;
+	public int getCcomboBonusCount() {
+		return _comboBonusCount;
 	}
 
-	public void increaseComboCount() 
+	public void setComboBonusCount(int _comboBonusCount) {
+		this._comboBonusCount = _comboBonusCount;
+	}
+	
+	public int increaseComboBonusCount() {
+		this._comboBonusCount++;
+		return _comboBonusCount;
+	}
+	
+	public void clearComboBonusCount() {
+		this._comboBonusCount = 0;
+	}
+	
+	public int getComboBonusTarget() {
+		return _comboBonusTarget;
+	}
+
+	public void setComboBonusTarget(int _comboBonusTarget) {
+		this._comboBonusTarget = _comboBonusTarget;
+	}
+
+	
+	public int increaseBoardsClearCount()
 	{
-		_comboCounter.ComboCount++;
+		_boardsClearCount++;
+		return _boardsClearCount;
+	}
+	
+	public int getBoardsClearCount()
+	{
+		return _boardsClearCount;
+	}
+	
+	public void resetLevel() 
+	{
+		_level = 1;
+		_specComboTime = 2.0f;
+	}
+	
+	public int getLevel() {
+		return _level;
+	}
+	
+	public void nextLevel()
+	{
+		_level++;
+		_specComboTime = MathUtils.clamp(_specComboTime - 0.2f, 0.2f, Float.MAX_VALUE);
+	}
+	
+	public int getComboCount() {
+		return _comboCount;
+	}
+
+	public int increaseComboCount() 
+	{
+		_comboCount++;
+		return _comboCount;
 	}
 	
 	public void clearComboCount() 
 	{
-		_comboCounter.ComboCount = 0;
+		_comboCount = 0;
 	}
 
 	public float getRemainComboTime() {
 		return _remainComboTime;
 	}
 
+	public void resetRemainComboTime() 
+	{
+		_remainComboTime = _specComboTime;
+	}
+	
 	public void setRemainComboTime(float remainComboTime) 
 	{
-		this._remainComboTime = remainComboTime;
-		this._comboBar.Current = remainComboTime;
+		_remainComboTime = remainComboTime;
+	}
+	
+	private void updateUi() 
+	{
+		_comboBar.Max = _specComboTime;
+		_comboAccumulator.Max = _comboBonusTarget;
+		_comboBar.setCurrent(_remainComboTime);
+		_comboCounter.ComboCount = _comboCount;
+		_comboAccumulator.setCurrent(_comboBonusCount);
+	}
+	
+	@Override
+	public void draw(Batch batch, float parentAlpha) 
+	{
+		updateUi();
+		super.draw(batch, parentAlpha);
 	}
 
 	public GameMetadata()
 	{
 		_comboCounter = new ComboCounter(450, Config.BOARD_UPPER_BOUND + 50);
 		_comboBar = new ComboBar(10, Config.BOARD_UPPER_BOUND + 100, Config.FRUSTUM_WIDTH - 30, 20);
-		_comboBar.Max = 1;
-		_comboBar.Current = 0;
-		addActor(_comboCounter);
+		_comboAccumulator = new ComboBar(10, Config.BOARD_UPPER_BOUND + 50, Config.FRUSTUM_WIDTH - 300, 20);
+		_comboAccumulator.setShowUpperBound(true);
+		_comboAccumulator.setAlwaysShow(true);
+		
+		addActor(_comboAccumulator);
 		addActor(_comboBar);
+		addActor(_comboCounter);
 		setTouchable(Touchable.disabled);
 		initialize();
 	}
@@ -60,9 +147,15 @@ public class GameMetadata extends Group implements TEventHandler
 		_score = 0;
 		_gameTime = Config.DEFUALT_GAME_TIME;
 		_txtTime = "";
-		this.setPenaltyTime(0);
-		this.setRemainComboTime(1);
-		_comboCounter.ComboCount = 0;
+		_comboBar.setCurrent(0);
+		_specPenaltyTime = 0.5f;
+		_boardsClearCount = 0;
+		_comboBonusTarget = 10;
+		setPenaltyTime(0);
+		resetRemainComboTime();
+		clearComboCount();
+		clearComboBonusCount();
+		resetLevel();
 	}
 
 	public String getGameTimeString() 
@@ -70,11 +163,16 @@ public class GameMetadata extends Group implements TEventHandler
 		return _txtTime;
 	}
 
+	public void increasGameTime(int value)
+	{
+		_gameTime += value;				
+	}
+	
 	public int getGameTime() {
 		return (int)_gameTime;
 	}
 
-	public void elapseGameTime(float delta) 
+	public void update(float delta) 
 	{
 		this._gameTime -= delta;
 		int minutes = (int)(_gameTime / 60.0);
@@ -87,23 +185,23 @@ public class GameMetadata extends Group implements TEventHandler
 			_txtTime += ":" + seconds;
 		}
 		
-		//update combo time
-		float remainComboTime = this.getRemainComboTime() - delta;
-		this.setRemainComboTime(remainComboTime < 0 ? 0 : remainComboTime);
+		//update penalty time
+		setPenaltyTime(MathUtils.clamp(_remainPenaltyTime - delta, 0, Float.MAX_VALUE));
+		
+		//update combo time, combo count
+		setRemainComboTime(MathUtils.clamp(this.getRemainComboTime() - delta, 0, Float.MAX_VALUE));
 		if(this.getRemainComboTime() <= 0) clearComboCount();
 	}
 	
-	public boolean isPenaltyOver(float delta) 
-	{
-		if(_remainPenaltyTime > 0)
-		{
-			_remainPenaltyTime -= delta;
-			if(_remainPenaltyTime <= 0)
-				return true;
-		}
-		
-		return false;
+	public boolean isPenaltyOver() 
+	{		
+		return _remainPenaltyTime <= 0;
 	}
+	
+	public void resetPenaltyTime() 
+	{
+		_remainPenaltyTime = _specPenaltyTime;
+	} 
 	
 	public void setPenaltyTime(float value) 
 	{

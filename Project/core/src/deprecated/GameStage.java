@@ -7,13 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.touchout.game.Config;
-import com.touchout.game.component.NumBoardGroup;
+import com.touchout.game.component.NumBoard;
 
 public class GameStage extends Stage
 {
 	Logger logger = new Logger("level");
 
-	NumBoardGroup _board;
+	NumBoard _board;
 	
 	
 	public GameStage(int rowCount, int colCount ,SpriteBatch batch)
@@ -25,13 +25,13 @@ public class GameStage extends Stage
 		int boardWidth = blockMarginSet*rowCount - Config.BLOCK_MARGIN;
 		int horizontalPadding = (Config.FRUSTUM_WIDTH - boardWidth) / 2;
 		
-		_board = new NumBoardGroup(new Vector2(horizontalPadding, Config.BLOCK_MARGIN), colCount, rowCount, blockSize, blockSize);
+		_board = new NumBoard(new Vector2(horizontalPadding, Config.BLOCK_MARGIN), colCount, rowCount, blockSize, blockSize);
 		this.addActor(_board);
 		logger.setLevel(Application.LOG_DEBUG);
 		//_board._blockWidth = _board._blockHeight = blockSize;
 	}
 	
-	public NumBoardGroup getBoard()
+	public NumBoard getBoard()
 	{
 		return _board;
 	}

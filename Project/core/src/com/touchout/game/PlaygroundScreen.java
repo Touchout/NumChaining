@@ -18,7 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table.Debug;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.touchout.game.component.ComboBar;
-import com.touchout.game.component.NumBoardGroup;
+import com.touchout.game.component.NumBoard;
 import com.touchout.game.component.ResultingUI;
 import com.touchout.game.event.BlockSolvedTEvent;
 import com.touchout.game.event.LockBoardTEvent;
@@ -79,7 +79,7 @@ public class PlaygroundScreen extends ScreenAdapter
 		
 		time -= delta;
 		time = time > 0 ? time : 0;
-		comboBar.Current = time;
+		comboBar.setCurrent(time);
 		
 		//Draw gaming component (board...etc)
 		_camera.update();

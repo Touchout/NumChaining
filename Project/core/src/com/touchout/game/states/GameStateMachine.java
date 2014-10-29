@@ -9,9 +9,9 @@ import com.touchout.game.event.TEventHandler;
 
 public class GameStateMachine implements TEventHandler 
 {
-	List<GameStater> _staters;
-	HashMap<GameStateCode, GameStater> _stateDictionary;
-	GameStater _currentStater;
+	private List<GameStater> _staters;
+	private HashMap<GameStateCode, GameStater> _stateDictionary;
+	private GameStater _currentStater;
 	
 	public GameStateMachine(Screen screen, GameStateCode initialStateCode)
 	{

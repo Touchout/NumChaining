@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -21,7 +22,7 @@ public class ResultingUI extends Group implements Disposable
 {
 	Skin skin;
 	Table scoreBoard;
-	Label score;
+	Label score,highScore;
 	TextButton restartButton;
 	TEventBroadcaster _broadcaster;
 	
@@ -58,8 +59,12 @@ public class ResultingUI extends Group implements Disposable
 		//restartButton.setWidth(100);
 		score = new Label("Score: 75", skin);
 		score.setFontScale(5);
+		highScore = new Label("High Score: --", skin);
+		highScore.setFontScale(2);
 		
 		scoreBoard.add(score).expand();
+		scoreBoard.row();
+		scoreBoard.add(highScore);
 		scoreBoard.row().pad(20, 0, 20, 0);
 		scoreBoard.add(restartButton).prefWidth(200).prefHeight(100);
 
@@ -72,8 +77,11 @@ public class ResultingUI extends Group implements Disposable
 	public void initialize() 
 	{
 		//SetAction
+		scoreBoard.setTouchable(Touchable.disabled);
 		scoreBoard.getActions().clear();
-		scoreBoard.addAction(Actions.scaleTo(1, 1, 1f, Interpolation.elasticOut));
+		scoreBoard.addAction(Actions.sequence(
+				Actions.scaleTo(1, 1, 1f, Interpolation.elasticOut),
+				Actions.touchable(Touchable.enabled)));
 		
 		scoreBoard.setBackground("default-round-large");
 		scoreBoard.setWidth(600);
@@ -92,6 +100,11 @@ public class ResultingUI extends Group implements Disposable
 	public void setScore(String scoreStr) 
 	{
 		score.setText("Score: " + scoreStr);
+	}
+	
+	public void setHighScore(int value) 
+	{
+		highScore.setText("HighScore: " + String.valueOf(value));
 	}
 
 	@Override

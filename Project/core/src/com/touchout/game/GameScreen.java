@@ -8,17 +8,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Table.Debug;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.touchout.game.component.NumBoardGroup;
+import com.touchout.game.component.NumBoard;
 import com.touchout.game.component.ResultingUI;
+import com.touchout.game.component.TextActor;
 import com.touchout.game.event.BlockSolvedTEvent;
 import com.touchout.game.event.LockBoardTEvent;
 import com.touchout.game.event.TEvent;
@@ -33,27 +37,24 @@ import com.touchout.game.states.ResultingStater;
 
 public class GameScreen extends ScreenAdapter
 {
-	Logger logger = new Logger("game");
-	final NumChaining GAME;
-	OrthographicCamera _camera;
-	TEventBroadcaster _braodcaster;
-	
+	private Logger logger = new Logger("game");
+	private final NumChaining GAME;
+	private OrthographicCamera _camera;
+	private TEventBroadcaster _braodcaster;
 	//Game State
-	GameStateMachine _stateMachine;
-	
+	private GameStateMachine _stateMachine;
 	//Game metadata
-	GameMetadata _metadata;
-	
+	private GameMetadata _metadata;
 	//Stages
-	Stage _gameStage;
-	Stage _hudStage;
-	Stage _uiStage;
-
+	private Stage _gameStage;
+	private Stage _hudStage;
+	private Stage _uiStage;
 	//Actors, Groups
-	ResultingUI _resultingUI;
-	NumBoardGroup _board;
+	private ResultingUI _resultingUI;
+	private NumBoard _board;
+	TextActor _timeBonusHint;
 	
-	public NumBoardGroup getBoard() {
+	public NumBoard getBoard() {
 		return _board;
 	}
 
@@ -72,6 +73,7 @@ public class GameScreen extends ScreenAdapter
 	public GameScreen(NumChaining game)
 	{
 		GAME = game;
+		GAME.batch.enableBlending();
 		
 		//Set Game States
 		_stateMachine = new GameStateMachine(this, GameStateCode.Intro);
@@ -89,16 +91,21 @@ public class GameScreen extends ScreenAdapter
 		//calculate board horizontal padding
 		int horizontalPadding = (Config.FRUSTUM_WIDTH - boardWidth) / 2;
 		
-		_board = new NumBoardGroup(new Vector2(horizontalPadding, Config.BLOCK_MARGIN), Config.COLUMN_COUNT, Config.ROW_COUNT, blockSize, blockSize);
+		_board = new NumBoard(new Vector2(horizontalPadding, Config.BLOCK_MARGIN), Config.COLUMN_COUNT, Config.ROW_COUNT, blockSize, blockSize);
 		_board.getTEventBroadcaster().addTEventHandler(_stateMachine);
+		
+		//Set Time Bonus Hint
+		_timeBonusHint = new TextActor(Assets.TimeBonusFont, "TIME++", 100, 700);
+		_timeBonusHint.setVisible(false);
 		
 		//Set Game Metadata
 		_metadata = new GameMetadata();
 		
 		//Set Game Stage
 		_gameStage = new Stage(new FitViewport(Config.FRUSTUM_WIDTH, Config.FRUSTUM_HEIGHT), GAME.batch);
-		_gameStage.addActor(_board);
 		_gameStage.addActor(_metadata);
+		_gameStage.addActor(_board);
+		_gameStage.addActor(_timeBonusHint);
 		_gameStage.addListener(new InputListener()
 		{
 			@Override
@@ -159,7 +166,7 @@ public class GameScreen extends ScreenAdapter
 		//Draw gaming component (board...etc)
 		_camera.update();
 		_gameStage.draw();
-		_gameStage.act();
+		_gameStage.act(delta);
 		
 		//Draw UI
 		if(_stateMachine.getCurrentStateCode() == GameStateCode.Resulting)
@@ -180,7 +187,20 @@ public class GameScreen extends ScreenAdapter
 
 		//draw score
 		Assets.ScoreFont.draw(GAME.batch, String.format("%010d", _metadata.getScore()), 20, 1260);
+		Assets.LevelFont.draw(GAME.batch, String.format("LEVEL %2d", _metadata.getLevel()), 500, 1260);
 		
 		GAME.batch.end();
 	}	 
+	
+	public void displayTimeBonusHint()
+	{
+		//_timeBonusHint.setColor(1, 1, 1, 1);
+		_timeBonusHint.setVisible(true);
+		_timeBonusHint.setPosition(100, 700);
+		_timeBonusHint.addAction(Actions.sequence(
+						//Actions.alpha(0, 1f, Interpolation.),
+						Actions.moveBy(0, 50, 0.5f,Interpolation.exp5),
+						//Actions.fadeOut(1f),
+						Actions.hide()));
+	}
 }

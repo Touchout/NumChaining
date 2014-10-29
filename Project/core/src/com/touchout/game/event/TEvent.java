@@ -8,6 +8,13 @@ public class TEvent
 	public TEvent(Object sender)
 	{
 		this.Sender = sender;
+		this.Tag = null;
+	}
+	
+	public TEvent(Object sender, Object tag)
+	{
+		this.Sender = sender;
+		this.Tag = tag;
 	}
 	
 	public Object getSender() {
