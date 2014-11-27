@@ -9,6 +9,14 @@ public class TextActor extends Actor
 	BitmapFont _font;
 	String _text;
 	
+	public BitmapFont getFfont() { return _font;}
+
+	public void setFont(BitmapFont _font) {	this._font = _font;	}
+	
+	public String getText() { return _text;}
+
+	public void setText(String _text) {	this._text = _text;	}
+
 	public TextActor(BitmapFont font, String text, int x, int y)
 	{
 		super();

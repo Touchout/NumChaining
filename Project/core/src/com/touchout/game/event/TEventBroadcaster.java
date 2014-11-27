@@ -4,14 +4,14 @@ import com.badlogic.gdx.utils.Array;
 
 public class TEventBroadcaster 
 {
-	Array<TEventHandler> _tEventHandlers;
+	Array<ITEventHandler> _tEventHandlers;
 	
 	public TEventBroadcaster()
 	{
-		_tEventHandlers = new Array<TEventHandler>();
+		_tEventHandlers = new Array<ITEventHandler>();
 	}
 	
-	public void addTEventHandler(TEventHandler handler) 
+	public void addTEventHandler(ITEventHandler handler) 
 	{
 		this._tEventHandlers.add(handler);
 	}
@@ -23,7 +23,7 @@ public class TEventBroadcaster
 	
 	public void broadcast(TEvent event) 
 	{
-		for (TEventHandler tEventHandler : _tEventHandlers) 
+		for (ITEventHandler tEventHandler : _tEventHandlers) 
 		{
 			tEventHandler.handle(event);
 		}

@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Logger;
+import com.touchout.game.test.MvcTestScreen;
 
 public class NumChaining extends Game 
 {
@@ -20,7 +21,8 @@ public class NumChaining extends Game
 		Assets.Load();
 		batch = new SpriteBatch();
 		//setScreen(new GameScreen(this));
-		setScreen(new GameScreen(this));
+		//setScreen(new GameScreen(this));
+		setScreen(new MvcTestScreen(this));
 		//setScreen(new MenuScreen());
 		//setScreen(new PlaygroundScreen(this));
 	}

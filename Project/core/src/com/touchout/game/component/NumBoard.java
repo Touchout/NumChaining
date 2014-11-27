@@ -18,7 +18,7 @@ import com.touchout.game.event.LockBoardTEvent;
 import com.touchout.game.event.TEvent;
 import com.touchout.game.event.TEventBroadcaster;
 import com.touchout.game.event.TEventCode;
-import com.touchout.game.event.TEventHandler;
+import com.touchout.game.event.ITEventHandler;
 
 public class NumBoard extends Group
 {

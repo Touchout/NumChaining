@@ -25,12 +25,12 @@ import com.touchout.game.event.LockBoardTEvent;
 import com.touchout.game.event.TEvent;
 import com.touchout.game.event.TEventBroadcaster;
 import com.touchout.game.event.TEventCode;
-import com.touchout.game.event.TEventHandler;
+import com.touchout.game.event.ITEventHandler;
 import com.touchout.game.states.GameStateCode;
 import com.touchout.game.states.GameStateMachine;
 import com.touchout.game.states.GameStater;
-import com.touchout.game.states.PlayingStater;
-import com.touchout.game.states.ResultingStater;
+import com.touchout.game.states.arcade.PlayingStater;
+import com.touchout.game.states.arcade.ResultingStater;
 
 public class PlaygroundScreen extends ScreenAdapter
 {
