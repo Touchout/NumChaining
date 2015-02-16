@@ -39,7 +39,7 @@ public class ComboBar extends Actor
 		_current = MathUtils.clamp(value, Min, Max);
 	}
 	
-	public ComboBar(int x, int y, int width, int height)
+	public ComboBar(float x, float y, float width, float height)
 	{
 		this.setBounds(x, y, width, height);
 		Max = 100;

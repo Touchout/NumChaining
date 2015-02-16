@@ -17,11 +17,17 @@ import com.sun.prism.GraphicsPipeline.ShaderType;
 import com.touchout.game.Assets;
 import com.touchout.game.Config;
 import com.touchout.game.NumChaining;
+import com.touchout.game.component.ComboCounter;
 import com.touchout.game.component.TextActor;
-import com.touchout.game.mvc.actor.NumBlock;
-import com.touchout.game.mvc.actor.NumBoard;
 import com.touchout.game.mvc.controller.ArcadeGameController;
+import com.touchout.game.mvc.event.GameEventArg;
+import com.touchout.game.mvc.event.IGameEventHandler;
 import com.touchout.game.mvc.model.ArcadeGameModel;
+import com.touchout.game.mvc.model.ArcadeGameModel.GameState;
+import com.touchout.game.mvc.view.actor.ProgressBar;
+import com.touchout.game.mvc.view.actor.NumBlock;
+import com.touchout.game.mvc.view.actor.NumBoard;
+import com.touchout.game.mvc.view.actor.ResultPanel;
 
 public class ArcadeGameView 
 {
@@ -33,11 +39,15 @@ public class ArcadeGameView
 	//OrthographicCamera _camera;
 
 	//Stages
-	Stage _stage;
+	Stage _gameStage;
+	Stage _uiStage;
 	
 	//Actors
 	NumBoard _board;
 	TextActor _gameTimeCounter;
+	TextActor _comboCounter;
+	ProgressBar _comboMeter, _boostMeter;
+	ResultPanel _resultPanel;
 	
 	public ArcadeGameView(ArcadeGameModel model, ArcadeGameController controller)
 	{
@@ -48,10 +58,23 @@ public class ArcadeGameView
 		initializeActors();
 		
 		//Set Game Stage
-		_stage = new Stage(new FitViewport(Config.FRUSTUM_WIDTH, Config.FRUSTUM_HEIGHT), _game.batch);
-		_stage.addActor(_board);
-		_stage.addActor(_gameTimeCounter);
-		Gdx.input.setInputProcessor(_stage);
+		_gameStage = new Stage(new FitViewport(Config.FRUSTUM_WIDTH, Config.FRUSTUM_HEIGHT), _game.batch);
+		_gameStage.addActor(_board);
+		_gameStage.addActor(_gameTimeCounter);
+		_gameStage.addActor(_comboCounter);
+		_gameStage.addActor(_comboMeter);
+		_gameStage.addActor(_boostMeter);
+		Gdx.input.setInputProcessor(_gameStage);
+		
+		//Set UI Stage
+		_uiStage = new Stage(new FitViewport(Config.FRUSTUM_WIDTH, Config.FRUSTUM_HEIGHT), _game.batch);
+		_uiStage.addActor(_resultPanel);
+		
+		//Register Events
+		_model.getGameOverEvent().addTEventHandler(new IGameEventHandler() {			
+			@Override
+			public void handle(GameEventArg event) { switchToResulting(); }
+		});
 		
 		//Set Camera
 		//_camera = new OrthographicCamera();
@@ -63,13 +86,71 @@ public class ArcadeGameView
 	
 	private void initializeActors() 
 	{
-		_gameTimeCounter = new TextActor(Assets.TimeFont, "", 250, 700);
-		_board = new NumBoard(new Vector2(10,10), 
+		float boardPosX, timerPosX, cCounterPosX, comboBarPosX, boostMeterPosX;
+		float boardPosY, timerPosY, cCounterPosY, comboBarPosY, boostMeterPosY;
+		float boardWidth,boardHeight, timerWidth, cCounterWidth, comboBarWidth, comboBarHeight, boostMeterWidth, boostMeterHeight;
+		
+		//*** Compute centralize position ***//
+		//Board
+		boardWidth = Config.BLOCK_WIDTH * Config.COLUMN_COUNT + (Config.COLUMN_COUNT-1) * Config.BLOCK_MARGIN;
+		boardHeight = Config.BLOCK_HEIGHT * Config.ROW_COUNT + (Config.ROW_COUNT-1) * Config.BLOCK_MARGIN;
+		boardPosX= (Config.FRUSTUM_WIDTH - boardWidth) / 2;
+		boardPosY = (Config.BOARD_UPPER_BOUND - boardHeight) / 2;
+		
+		//Timer
+		timerWidth = Assets.TimeFont.getBounds("00:00").width;
+		timerPosX = (Config.FRUSTUM_WIDTH - timerWidth) / 2;
+		timerPosY = Config.TIMER_VPOSITION;
+		
+		//ComboCounter
+		cCounterWidth = Assets.ComboFont.getBounds("   ").width;
+		cCounterPosX = boardPosX + boardWidth - cCounterWidth;
+		cCounterPosY = Config.BOARD_UPPER_BOUND + 50;
+		
+		//ComboBar
+		comboBarWidth = boardWidth;
+		comboBarHeight = 15;
+		comboBarPosX = boardPosX;
+		comboBarPosY = Config.BOARD_UPPER_BOUND +100;
+		
+		//BoostMeter
+		boostMeterWidth = cCounterPosX - boardPosX - 50;
+		boostMeterHeight = 15;
+		boostMeterPosX = boardPosX;
+		boostMeterPosY = Config.BOARD_UPPER_BOUND + 50;
+		
+		//*** Initialization ***//
+		_gameTimeCounter = new TextActor(Assets.TimeFont, "", timerPosX, timerPosY);
+		
+		_comboCounter = new TextActor(Assets.ComboFont, "", cCounterPosX, cCounterPosY);
+		
+		_comboMeter = new ProgressBar(comboBarPosX, comboBarPosY, comboBarWidth, comboBarHeight);
+		_comboMeter.setMax(_model.getMetadata().getRemianComboTimeSpec());
+		_comboMeter.setMin(0);
+		_comboMeter.setCurrent(_model.getMetadata().getRemainComboTime());
+		
+		_boostMeter = new ProgressBar(boostMeterPosX, boostMeterPosY, boostMeterWidth, boostMeterHeight);
+		_boostMeter.setMax(_model.getMetadata().getComboBonusTarget());
+		_boostMeter.setMin(0);
+		_boostMeter.setCurrent(_model.getMetadata().getCcomboBonusCount());
+		_boostMeter.setAlwaysShow(true);
+		_boostMeter.setShowUpperBound(true);
+		
+		_resultPanel = new ResultPanel();
+		_resultPanel.getRestartButtonPressedEvent().addTEventHandler(new IGameEventHandler() {
+			@Override
+			public void handle(GameEventArg event) 
+			{ 
+				reset();
+				_controller.restartGame();
+			}
+		});
+		
+		_board = new NumBoard(new Vector2(boardPosX, boardPosY), 
 				Config.ROW_COUNT, 
 				Config.COLUMN_COUNT, 
 				Config.BLOCK_WIDTH, 
 				Config.BLOCK_HEIGHT);
-		
 		_board.addListener(new InputListener()
 		{
 			@Override
@@ -90,17 +171,34 @@ public class ArcadeGameView
 			}
 		});
 		
-		_board.bindCells(_model.getBboardEntity());
+		_board.bindCells(_model.getBboardEntity().getCells());
+	}
+	
+	private void reset()
+	{
+		_resultPanel.initialize();
+		Gdx.input.setInputProcessor(_gameStage);
+	}
+	
+	private void switchToResulting() 
+	{
+		_resultPanel.setScore(_model.getMetadata().getScoreString());
+		_resultPanel.setHighScore(0);
+		Gdx.input.setInputProcessor(_uiStage);
 	}
 	
 	public void resize(int width, int height) 
 	{
-		_stage.getViewport().update(width, height);
+		_gameStage.getViewport().update(width, height);
+		_uiStage.getViewport().update(width, height);
 	}
 	
 	public void update()
 	{
 		_gameTimeCounter.setText(_model.getMetadata().getGameTimeString());
+		_comboCounter.setText(String.format("%3d",_model.getMetadata().getComboCount()));
+		_comboMeter.setCurrent(_model.getMetadata().getRemainComboTime());
+		_boostMeter.setCurrent(_model.getMetadata().getCcomboBonusCount() % _model.getMetadata().getComboBonusTarget());
 	}
 	
 	public void render()
@@ -111,15 +209,21 @@ public class ArcadeGameView
 				
 		//Draw gaming component (board...etc)
 		//_camera.update();
-		_stage.draw();
-		_stage.act();
+		_gameStage.draw();
+		_gameStage.act();
 		
-		ShapeRenderer renderer = new ShapeRenderer();
-		renderer.setProjectionMatrix(_stage.getCamera().combined);
-		renderer.setColor(Color.WHITE);
-		renderer.begin(ShapeType.Line);
-		renderer.line(0, 700, 720, 700);
-		renderer.end();
-		renderer.dispose();
+		if(_model.getState() == GameState.Resulting)
+		{
+			_uiStage.draw();
+			_uiStage.act();
+		}
+		
+//		ShapeRenderer renderer = new ShapeRenderer();
+//		renderer.setProjectionMatrix(_stage.getCamera().combined);
+//		renderer.setColor(Color.WHITE);
+//		renderer.begin(ShapeType.Line);
+//		renderer.line(0, Config.BOARD_UPPER_BOUND, Config.FRUSTUM_WIDTH, Config.BOARD_UPPER_BOUND);
+//		renderer.end();
+//		renderer.dispose();
 	}
 }

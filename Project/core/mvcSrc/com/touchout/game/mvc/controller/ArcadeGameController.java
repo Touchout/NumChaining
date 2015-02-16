@@ -2,6 +2,7 @@ package com.touchout.game.mvc.controller;
 
 import com.touchout.game.NumChaining;
 import com.touchout.game.mvc.model.ArcadeGameModel;
+import com.touchout.game.mvc.model.ArcadeGameModel.GameState;
 import com.touchout.game.mvc.view.ArcadeGameView;
 
 public class ArcadeGameController 
@@ -39,6 +40,12 @@ public class ArcadeGameController
 	
 	public void touchBlock(int row, int col) 
 	{
-		_model.touchBlock(row, col);
+		if(_model.getState() == GameState.Playing)
+			_model.touchBlock(row, col);
+	}
+	
+	public void restartGame() 
+	{
+		_model.reset();
 	}
 }

@@ -38,13 +38,13 @@ public class ArcadeModeComponentPackage implements IGameComponentPackage
 		//Set Game Board
 		//Position computing for centralize game board (block assumed to be square)
 		//calculate length of (block+margin)
-		int blockMarginSet = (Config.BOARD_UPPER_BOUND - Config.BLOCK_MARGIN) / Config.ROW_COUNT;
+		float blockMarginSet = (Config.BOARD_UPPER_BOUND - Config.BLOCK_MARGIN) / Config.ROW_COUNT;
 		//calculate block length
-		int blockSize = blockMarginSet - Config.BLOCK_MARGIN;
+		float blockSize = blockMarginSet - Config.BLOCK_MARGIN;
 		//calculate board width
-		int boardWidth = blockMarginSet*Config.ROW_COUNT - Config.BLOCK_MARGIN;
+		float boardWidth = blockMarginSet*Config.ROW_COUNT - Config.BLOCK_MARGIN;
 		//calculate board horizontal padding
-		int horizontalPadding = (Config.FRUSTUM_WIDTH - boardWidth) / 2;
+		float horizontalPadding = (Config.FRUSTUM_WIDTH - boardWidth) / 2;
 		
 		_board = new NumBoard(new Vector2(horizontalPadding, Config.BLOCK_MARGIN), Config.COLUMN_COUNT, Config.ROW_COUNT, blockSize, blockSize);
 

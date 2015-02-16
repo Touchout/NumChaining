@@ -8,7 +8,7 @@ public class ComboCounter extends Actor
 {
 	public int ComboCount = 0;
 	
-	public ComboCounter(int x, int y)
+	public ComboCounter(float x, float y)
 	{
 		setPosition(x, y);
 	}

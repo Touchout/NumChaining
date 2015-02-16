@@ -20,10 +20,10 @@ public class GameStage extends Stage
 	{
 		super(new FitViewport(Config.FRUSTUM_WIDTH, Config.FRUSTUM_HEIGHT), batch);
 		
-		int blockMarginSet = (Config.BOARD_UPPER_BOUND - Config.BLOCK_MARGIN) / rowCount;
-		int blockSize = blockMarginSet - Config.BLOCK_MARGIN;
-		int boardWidth = blockMarginSet*rowCount - Config.BLOCK_MARGIN;
-		int horizontalPadding = (Config.FRUSTUM_WIDTH - boardWidth) / 2;
+		float blockMarginSet = (Config.BOARD_UPPER_BOUND - Config.BLOCK_MARGIN) / rowCount;
+		float blockSize = blockMarginSet - Config.BLOCK_MARGIN;
+		float boardWidth = blockMarginSet*rowCount - Config.BLOCK_MARGIN;
+		float horizontalPadding = (Config.FRUSTUM_WIDTH - boardWidth) / 2;
 		
 		_board = new NumBoard(new Vector2(horizontalPadding, Config.BLOCK_MARGIN), colCount, rowCount, blockSize, blockSize);
 		this.addActor(_board);

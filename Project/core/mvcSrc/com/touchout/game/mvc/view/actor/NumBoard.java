@@ -1,4 +1,4 @@
-package com.touchout.game.mvc.actor;
+package com.touchout.game.mvc.view.actor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -27,10 +27,10 @@ public class NumBoard extends Group
 	private Vector2 _position;
 	private final int _colCount;
 	private final int _rowCount;
-	private int _blockWidth;
-	private int _blockHeight;
-	private int _horizontalMargin = 10;
-	private int _VerticalMargin = 10;
+	private float _blockWidth;
+	private float _blockHeight;
+	private float _horizontalMargin = 10;
+	private float _VerticalMargin = 10;
 	private NumBlock[][] _blocks;
 	private NumBlockEntity[][] _cells;
 	
@@ -39,7 +39,7 @@ public class NumBoard extends Group
 		this._cells = cells;
 	}
 
-	public NumBoard(Vector2 pos, int colCount, int rowCount, int blockWidth, int blockHeight)
+	public NumBoard(Vector2 pos, int colCount, int rowCount, float blockWidth, float blockHeight)
 	{
 		_position = pos;
 		_colCount = colCount;
@@ -65,10 +65,10 @@ public class NumBoard extends Group
 				blockActor.Number = blockEntity.Number;
 				
 				//Set tint color by status 
-				if(blockEntity.IsSolved)
-					blockActor.setColor(Color.GRAY);
-				else if(blockEntity.IsLocked)
+				if(blockEntity.IsLocked)
 					blockActor.setColor(Color.RED);
+				else if(blockEntity.IsSolved)
+					blockActor.setColor(Color.GRAY);
 				else
 					blockActor.setColor(Color.WHITE);
 			}

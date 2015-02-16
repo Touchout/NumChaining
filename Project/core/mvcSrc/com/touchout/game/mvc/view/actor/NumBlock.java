@@ -1,4 +1,4 @@
-package com.touchout.game.mvc.actor;
+package com.touchout.game.mvc.view.actor;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;

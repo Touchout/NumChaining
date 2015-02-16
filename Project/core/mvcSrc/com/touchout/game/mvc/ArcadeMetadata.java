@@ -13,13 +13,68 @@ public class ArcadeMetadata implements ITEventHandler
 	private int _score;
 	private float _specPenaltyTime;
 	private float _remainPenaltyTime;
-	private float _specComboTime;
+	private float _remianComboTimeSpec;
 	private float _remainComboTime;
 	private int _comboCount;
 	private int _comboBonusCount;
 	private int _level;
 	private int _boardsClearCount;
 	private int _comboBonusTarget;
+
+	public ArcadeMetadata()
+	{
+		initialize();
+	}
+	
+	public void initialize() 
+	{
+		_score = 0;
+		_gameTime = Config.DEFUALT_GAME_TIME;
+		_txtTime = "";
+		_specPenaltyTime = 0.5f;
+		_boardsClearCount = 0;
+		_comboBonusTarget = Config.COMBO_TARGET;
+		setPenaltyTime(0);
+		resetRemainComboTime();
+		clearComboCount();
+		clearComboBonusCount();
+		resetLevel();
+	}
+	
+	public void update(float delta) 
+	{
+		
+		this._gameTime = MathUtils.clamp(_gameTime - delta, 0, Float.MAX_VALUE);
+		int minutes = (int)(_gameTime / 60.0);
+		int seconds = (int)(_gameTime - minutes * 60);
+		_txtTime = "" + String.format("%02d", minutes);
+		if (seconds < 10) {
+			_txtTime += ":0" + seconds;
+		}
+		else {
+			_txtTime += ":" + seconds;
+		}
+			
+		
+		//update penalty time
+		setPenaltyTime(MathUtils.clamp(_remainPenaltyTime - delta, 0, Float.MAX_VALUE));
+		
+		//update combo time, combo count
+		setRemainComboTime(MathUtils.clamp(this.getRemainComboTime() - delta, 0, Float.MAX_VALUE));
+		if(this.getRemainComboTime() <= 0) clearComboCount();
+	}
+	
+	@Override
+	public void handle(TEvent event) 
+	{
+		if(event instanceof BlockSolvedTEvent)
+		{
+			_score += ((BlockSolvedTEvent)event).Reward;
+			//_comboBar.reset();
+		}
+	}
+	
+	//******************** Getters & Setters  ********************//
 	
 	public int getCcomboBonusCount() {
 		return _comboBonusCount;
@@ -45,7 +100,6 @@ public class ArcadeMetadata implements ITEventHandler
 	public void setComboBonusTarget(int _comboBonusTarget) {
 		this._comboBonusTarget = _comboBonusTarget;
 	}
-
 	
 	public int increaseBoardsClearCount()
 	{
@@ -61,7 +115,7 @@ public class ArcadeMetadata implements ITEventHandler
 	public void resetLevel() 
 	{
 		_level = 1;
-		_specComboTime = 2.0f;
+		_remianComboTimeSpec = 2.0f;
 	}
 	
 	public int getLevel() {
@@ -71,7 +125,7 @@ public class ArcadeMetadata implements ITEventHandler
 	public void nextLevel()
 	{
 		_level++;
-		_specComboTime = MathUtils.clamp(_specComboTime - 0.2f, 0.2f, Float.MAX_VALUE);
+		_remianComboTimeSpec = MathUtils.clamp(_remianComboTimeSpec - 0.2f, 0.2f, Float.MAX_VALUE);
 	}
 	
 	public int getComboCount() {
@@ -95,34 +149,22 @@ public class ArcadeMetadata implements ITEventHandler
 
 	public void resetRemainComboTime() 
 	{
-		_remainComboTime = _specComboTime;
+		_remainComboTime = _remianComboTimeSpec;
 	}
 	
 	public void setRemainComboTime(float remainComboTime) 
 	{
 		_remainComboTime = remainComboTime;
 	}
-	
-	public ArcadeMetadata()
-	{
-		initialize();
-	}
-	
-	public void initialize() 
-	{
-		_score = 0;
-		_gameTime = Config.DEFUALT_GAME_TIME;
-		_txtTime = "";
-		_specPenaltyTime = 0.5f;
-		_boardsClearCount = 0;
-		_comboBonusTarget = 10;
-		setPenaltyTime(0);
-		resetRemainComboTime();
-		clearComboCount();
-		clearComboBonusCount();
-		resetLevel();
+
+	public float getRemianComboTimeSpec() {
+		return _remianComboTimeSpec;
 	}
 
+	public void setRemianComboTimeSpec(float _remianComboTimeSpec) {
+		this._remianComboTimeSpec = _remianComboTimeSpec;
+	}
+	
 	public String getGameTimeString() 
 	{
 		return _txtTime;
@@ -135,28 +177,6 @@ public class ArcadeMetadata implements ITEventHandler
 	
 	public int getGameTime() {
 		return (int)_gameTime;
-	}
-
-	public void update(float delta) 
-	{
-		
-		this._gameTime = MathUtils.clamp(_gameTime - delta, 0, Float.MAX_VALUE);
-		int minutes = (int)(_gameTime / 60.0);
-		int seconds = (int)(_gameTime - minutes * 60);
-		_txtTime = "" + minutes;
-		if (seconds < 10) {
-			_txtTime += ":0" + seconds;
-		}
-		else {
-			_txtTime += ":" + seconds;
-		}
-		
-		//update penalty time
-		setPenaltyTime(MathUtils.clamp(_remainPenaltyTime - delta, 0, Float.MAX_VALUE));
-		
-		//update combo time, combo count
-		setRemainComboTime(MathUtils.clamp(this.getRemainComboTime() - delta, 0, Float.MAX_VALUE));
-		if(this.getRemainComboTime() <= 0) clearComboCount();
 	}
 	
 	public boolean isPenaltyOver() 
@@ -189,13 +209,4 @@ public class ArcadeMetadata implements ITEventHandler
 		this._score += reward;		
 	}
 
-	@Override
-	public void handle(TEvent event) 
-	{
-		if(event instanceof BlockSolvedTEvent)
-		{
-			_score += ((BlockSolvedTEvent)event).Reward;
-			//_comboBar.reset();
-		}
-	}
 }

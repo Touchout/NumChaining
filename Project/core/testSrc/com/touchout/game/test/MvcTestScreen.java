@@ -15,8 +15,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.touchout.game.Config;
 import com.touchout.game.NumChaining;
 import com.touchout.game.component.ComboBar;
-import com.touchout.game.mvc.actor.NumBlock;
-import com.touchout.game.mvc.actor.NumBoard;
 import com.touchout.game.mvc.controller.ArcadeGameController;
 import com.touchout.game.mvc.model.ArcadeGameModel;
 import com.touchout.game.mvc.model.NumBlockEntity;
