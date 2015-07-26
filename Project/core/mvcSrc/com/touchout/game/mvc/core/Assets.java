@@ -1,4 +1,4 @@
-package com.touchout.game;
+package com.touchout.game.mvc.core;
 
 import com.badlogic.gdx.Audio;
 import com.badlogic.gdx.Gdx;
@@ -27,6 +27,7 @@ public class Assets
 	public static BitmapFont ScoreFont;
 	public static BitmapFont ComboFont;
 	public static BitmapFont LevelFont;
+	public static BitmapFont MainTitleFont;
 	
 	public static void Load() 
 	{
@@ -70,6 +71,9 @@ public class Assets
 		parameter.size = 100;
 		parameter.characters = "TIME+";
 		TimeBonusFont = fontGenerator.generateFont(parameter);
+		parameter.size = 100;
+		parameter.characters = "NumChain";
+		MainTitleFont = fontGenerator.generateFont(parameter);
 		fontGenerator.dispose();
 	}
 	

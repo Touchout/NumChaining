@@ -1,6 +1,6 @@
 package com.touchout.game.mvc.model.state;
 
-import com.touchout.game.mvc.ArcadeMetadata;
+import com.touchout.game.mvc.core.ArcadeMetadata;
 import com.touchout.game.mvc.model.ArcadeGameModel.GameState;
 
 public class ArcadeStateMachine extends AbsStateMachine 

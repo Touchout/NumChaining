@@ -9,6 +9,7 @@ import com.touchout.game.component.ComboCounter;
 import com.touchout.game.event.BlockSolvedTEvent;
 import com.touchout.game.event.TEvent;
 import com.touchout.game.event.ITEventHandler;
+import com.touchout.game.mvc.Config;
 
 public class ArcadeMetadata extends Group implements ITEventHandler
 {

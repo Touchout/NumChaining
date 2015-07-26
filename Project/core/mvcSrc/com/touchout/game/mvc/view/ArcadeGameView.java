@@ -14,12 +14,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.sun.prism.GraphicsPipeline.ShaderType;
-import com.touchout.game.Assets;
-import com.touchout.game.Config;
-import com.touchout.game.NumChaining;
-import com.touchout.game.component.ComboCounter;
-import com.touchout.game.component.TextActor;
 import com.touchout.game.mvc.controller.ArcadeGameController;
+import com.touchout.game.mvc.core.Assets;
+import com.touchout.game.mvc.core.GlobalConfig;
+import com.touchout.game.mvc.core.NumChaining;
 import com.touchout.game.mvc.event.GameEventArg;
 import com.touchout.game.mvc.event.IGameEventHandler;
 import com.touchout.game.mvc.model.ArcadeGameModel;
@@ -28,6 +26,7 @@ import com.touchout.game.mvc.view.actor.ProgressBar;
 import com.touchout.game.mvc.view.actor.NumBlock;
 import com.touchout.game.mvc.view.actor.NumBoard;
 import com.touchout.game.mvc.view.actor.ResultPanel;
+import com.touchout.game.mvc.view.actor.TextActor;
 
 public class ArcadeGameView 
 {
@@ -58,7 +57,7 @@ public class ArcadeGameView
 		initializeActors();
 		
 		//Set Game Stage
-		_gameStage = new Stage(new FitViewport(Config.FRUSTUM_WIDTH, Config.FRUSTUM_HEIGHT), _game.batch);
+		_gameStage = new Stage(new FitViewport(GlobalConfig.FRUSTUM_WIDTH, GlobalConfig.FRUSTUM_HEIGHT), _game.batch);
 		_gameStage.addActor(_board);
 		_gameStage.addActor(_gameTimeCounter);
 		_gameStage.addActor(_comboCounter);
@@ -67,7 +66,7 @@ public class ArcadeGameView
 		Gdx.input.setInputProcessor(_gameStage);
 		
 		//Set UI Stage
-		_uiStage = new Stage(new FitViewport(Config.FRUSTUM_WIDTH, Config.FRUSTUM_HEIGHT), _game.batch);
+		_uiStage = new Stage(new FitViewport(GlobalConfig.FRUSTUM_WIDTH, GlobalConfig.FRUSTUM_HEIGHT), _game.batch);
 		_uiStage.addActor(_resultPanel);
 		
 		//Register Events
@@ -92,32 +91,32 @@ public class ArcadeGameView
 		
 		//*** Compute centralize position ***//
 		//Board
-		boardWidth = Config.BLOCK_WIDTH * Config.COLUMN_COUNT + (Config.COLUMN_COUNT-1) * Config.BLOCK_MARGIN;
-		boardHeight = Config.BLOCK_HEIGHT * Config.ROW_COUNT + (Config.ROW_COUNT-1) * Config.BLOCK_MARGIN;
-		boardPosX= (Config.FRUSTUM_WIDTH - boardWidth) / 2;
-		boardPosY = (Config.BOARD_UPPER_BOUND - boardHeight) / 2;
+		boardWidth = GlobalConfig.BLOCK_WIDTH * GlobalConfig.COLUMN_COUNT + (GlobalConfig.COLUMN_COUNT-1) * GlobalConfig.BLOCK_MARGIN;
+		boardHeight = GlobalConfig.BLOCK_HEIGHT * GlobalConfig.ROW_COUNT + (GlobalConfig.ROW_COUNT-1) * GlobalConfig.BLOCK_MARGIN;
+		boardPosX= (GlobalConfig.FRUSTUM_WIDTH - boardWidth) / 2;
+		boardPosY = (GlobalConfig.BOARD_UPPER_BOUND - boardHeight) / 2;
 		
 		//Timer
 		timerWidth = Assets.TimeFont.getBounds("00:00").width;
-		timerPosX = (Config.FRUSTUM_WIDTH - timerWidth) / 2;
-		timerPosY = Config.TIMER_VPOSITION;
+		timerPosX = (GlobalConfig.FRUSTUM_WIDTH - timerWidth) / 2;
+		timerPosY = GlobalConfig.TIMER_VPOSITION;
 		
 		//ComboCounter
 		cCounterWidth = Assets.ComboFont.getBounds("   ").width;
 		cCounterPosX = boardPosX + boardWidth - cCounterWidth;
-		cCounterPosY = Config.BOARD_UPPER_BOUND + 50;
+		cCounterPosY = GlobalConfig.BOARD_UPPER_BOUND + 50;
 		
 		//ComboBar
 		comboBarWidth = boardWidth;
 		comboBarHeight = 15;
 		comboBarPosX = boardPosX;
-		comboBarPosY = Config.BOARD_UPPER_BOUND +100;
+		comboBarPosY = GlobalConfig.BOARD_UPPER_BOUND +100;
 		
 		//BoostMeter
 		boostMeterWidth = cCounterPosX - boardPosX - 50;
 		boostMeterHeight = 15;
 		boostMeterPosX = boardPosX;
-		boostMeterPosY = Config.BOARD_UPPER_BOUND + 50;
+		boostMeterPosY = GlobalConfig.BOARD_UPPER_BOUND + 50;
 		
 		//*** Initialization ***//
 		_gameTimeCounter = new TextActor(Assets.TimeFont, "", timerPosX, timerPosY);
@@ -141,16 +140,22 @@ public class ArcadeGameView
 			@Override
 			public void handle(GameEventArg event) 
 			{ 
-				reset();
 				_controller.restartGame();
+			}
+		});		
+		_resultPanel.getMainMenuButtonPressedEvent().addTEventHandler(new IGameEventHandler() {
+			@Override
+			public void handle(GameEventArg event) 
+			{ 
+				_controller.backToMainMenu();
 			}
 		});
 		
 		_board = new NumBoard(new Vector2(boardPosX, boardPosY), 
-				Config.ROW_COUNT, 
-				Config.COLUMN_COUNT, 
-				Config.BLOCK_WIDTH, 
-				Config.BLOCK_HEIGHT);
+				GlobalConfig.ROW_COUNT, 
+				GlobalConfig.COLUMN_COUNT, 
+				GlobalConfig.BLOCK_WIDTH, 
+				GlobalConfig.BLOCK_HEIGHT);
 		_board.addListener(new InputListener()
 		{
 			@Override
@@ -174,7 +179,7 @@ public class ArcadeGameView
 		_board.bindCells(_model.getBboardEntity().getCells());
 	}
 	
-	private void reset()
+	public void reset()
 	{
 		_resultPanel.initialize();
 		Gdx.input.setInputProcessor(_gameStage);

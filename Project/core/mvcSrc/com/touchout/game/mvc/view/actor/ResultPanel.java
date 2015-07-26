@@ -14,9 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.touchout.game.event.TEvent;
-import com.touchout.game.event.TEventBroadcaster;
-import com.touchout.game.event.TEventCode;
 import com.touchout.game.mvc.event.GameEvent;
 import com.touchout.game.mvc.event.GameEventArg;
 
@@ -27,6 +24,8 @@ public class ResultPanel extends Group implements Disposable
 	Label score,highScore;
 	TextButton restartButton;
 	GameEvent _restartButtonPressedEvent = new GameEvent();
+	TextButton mainMenuButton;
+	GameEvent _mainMenuButtonPressedEvent = new GameEvent();
 
 	public ResultPanel()
 	{
@@ -48,6 +47,20 @@ public class ResultPanel extends Group implements Disposable
 				_restartButtonPressedEvent.fire(new GameEventArg(null));
 			}
 		});
+		
+		mainMenuButton = new TextButton("MainMenu", skin);
+		mainMenuButton.getLabel().setFontScale(2);
+		mainMenuButton.addListener(new InputListener(){
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				return true;
+			}
+			
+			@Override
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				_mainMenuButtonPressedEvent.fire(new GameEventArg(null));
+			}
+		});
 
 		//restartButton.setWidth(100);
 		score = new Label("", skin);
@@ -55,11 +68,12 @@ public class ResultPanel extends Group implements Disposable
 		highScore = new Label("", skin);
 		highScore.setFontScale(2);
 		
-		scoreBoard.add(score).expand();
+		scoreBoard.add(score).expand().colspan(2);
 		scoreBoard.row();
-		scoreBoard.add(highScore);
+		scoreBoard.add(highScore).colspan(2);
 		scoreBoard.row().pad(20, 0, 20, 0);
-		scoreBoard.add(restartButton).prefWidth(200).prefHeight(100);
+		scoreBoard.add(restartButton).prefWidth(180).prefHeight(100);
+		scoreBoard.add(mainMenuButton).prefWidth(180).prefHeight(100);
 
 		initialize();
 		
@@ -87,6 +101,10 @@ public class ResultPanel extends Group implements Disposable
 	
 	public GameEvent getRestartButtonPressedEvent() {
 		return _restartButtonPressedEvent;
+	}
+	
+	public GameEvent getMainMenuButtonPressedEvent() {
+		return _mainMenuButtonPressedEvent;
 	}
 	
 	public void setScore(String scoreStr) 

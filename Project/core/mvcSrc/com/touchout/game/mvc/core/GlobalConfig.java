@@ -1,6 +1,6 @@
-package com.touchout.game;
+package com.touchout.game.mvc.core;
 
-public class Config 
+public class GlobalConfig 
 {
 	public static final float FRUSTUM_WIDTH = 720;
 	public static final float FRUSTUM_HEIGHT = 1280;
@@ -18,7 +18,7 @@ public class Config
 	
 	public static final float BLOCK_MARGIN = 10;
 	
-	public static final int DEFUALT_GAME_TIME = 30;
+	public static final int DEFUALT_GAME_TIME = 3;
 	
 	public static final float TIMER_VPOSITION = 1000;
 	

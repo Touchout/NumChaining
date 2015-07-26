@@ -1,7 +1,8 @@
 package com.touchout.game.mvc.model;
 
-import com.touchout.game.Config;
-import com.touchout.game.mvc.ArcadeMetadata;
+import com.touchout.game.mvc.core.ArcadeMetadata;
+import com.touchout.game.mvc.core.GlobalConfig;
+import com.touchout.game.mvc.core.NumChaining;
 import com.touchout.game.mvc.event.GameEvent;
 import com.touchout.game.mvc.event.GameEventArg;
 
@@ -19,7 +20,7 @@ public class ArcadeGameModel
 
 	public NumBoardEntity getBboardEntity() { return _boardEntity; }
 
-	public ArcadeGameModel()
+	public ArcadeGameModel()	
 	{
 		initialize();
 	}
@@ -44,10 +45,10 @@ public class ArcadeGameModel
 	{
 		//initial target number
 		_targetNumber = 1;
-		_goalNumber = Config.ROW_COUNT * Config.COLUMN_COUNT;
+		_goalNumber = GlobalConfig.ROW_COUNT * GlobalConfig.COLUMN_COUNT;
 		
 		//init board
-		_boardEntity = new NumBoardEntity(Config.ROW_COUNT, Config.COLUMN_COUNT);
+		_boardEntity = new NumBoardEntity(GlobalConfig.ROW_COUNT, GlobalConfig.COLUMN_COUNT);
 		_boardEntity.shuffle();
 		
 		//init metadata
@@ -64,7 +65,7 @@ public class ArcadeGameModel
 		_boardEntity.renew();
 		_boardEntity.shuffle();
 		_targetNumber = 1;
-		_goalNumber = Config.ROW_COUNT * Config.COLUMN_COUNT;		
+		_goalNumber = GlobalConfig.ROW_COUNT * GlobalConfig.COLUMN_COUNT;		
 		_state = GameState.Playing;
 	}
 	

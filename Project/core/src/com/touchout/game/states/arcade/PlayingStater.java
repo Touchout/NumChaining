@@ -2,7 +2,6 @@ package com.touchout.game.states.arcade;
 
 import com.touchout.game.ArcadeMetadata;
 import com.touchout.game.ArcadeModeComponentPackage;
-import com.touchout.game.Assets;
 import com.touchout.game.component.NumBoard;
 import com.touchout.game.event.BlockSolvedTEvent;
 import com.touchout.game.event.LockBoardTEvent;
@@ -10,6 +9,7 @@ import com.touchout.game.event.TEvent;
 import com.touchout.game.event.TEventCode;
 import com.touchout.game.item.Item;
 import com.touchout.game.item.ItemManager;
+import com.touchout.game.mvc.Assets;
 import com.touchout.game.states.GameStateCode;
 import com.touchout.game.states.GameStater;
 

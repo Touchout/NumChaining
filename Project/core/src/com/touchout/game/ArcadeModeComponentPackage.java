@@ -5,7 +5,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.touchout.game.component.NumBoard;
 import com.touchout.game.component.ResultingUI;
-import com.touchout.game.component.TextActor;
+import com.touchout.game.mvc.Assets;
+import com.touchout.game.mvc.Config;
+import com.touchout.game.mvc.view.actor.TextActor;
 
 public class ArcadeModeComponentPackage implements IGameComponentPackage 
 {	

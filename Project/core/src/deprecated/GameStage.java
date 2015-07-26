@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.touchout.game.Config;
 import com.touchout.game.component.NumBoard;
+import com.touchout.game.mvc.Config;
 
 public class GameStage extends Stage
 {

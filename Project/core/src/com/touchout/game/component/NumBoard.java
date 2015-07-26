@@ -12,13 +12,13 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Logger;
-import com.touchout.game.Assets;
 import com.touchout.game.event.BlockSolvedTEvent;
 import com.touchout.game.event.LockBoardTEvent;
 import com.touchout.game.event.TEvent;
 import com.touchout.game.event.TEventBroadcaster;
 import com.touchout.game.event.TEventCode;
 import com.touchout.game.event.ITEventHandler;
+import com.touchout.game.mvc.Assets;
 
 public class NumBoard extends Group
 {

@@ -5,7 +5,7 @@ import android.os.Bundle;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.badlogic.gdx.backends.android.surfaceview.ResolutionStrategy;
-import com.touchout.game.NumChaining;
+import com.touchout.game.mvc.core.NumChaining;
 
 public class AndroidLauncher extends AndroidApplication {
 	@Override

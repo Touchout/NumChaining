@@ -1,12 +1,8 @@
-package com.touchout.game.mvc;
+package com.touchout.game.mvc.core;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.touchout.game.Config;
-import com.touchout.game.event.BlockSolvedTEvent;
-import com.touchout.game.event.TEvent;
-import com.touchout.game.event.ITEventHandler;
 
-public class ArcadeMetadata implements ITEventHandler
+public class ArcadeMetadata
 {
 	private String _txtTime;
 	private float _gameTime;
@@ -29,11 +25,11 @@ public class ArcadeMetadata implements ITEventHandler
 	public void initialize() 
 	{
 		_score = 0;
-		_gameTime = Config.DEFUALT_GAME_TIME;
+		_gameTime = GlobalConfig.DEFUALT_GAME_TIME;
 		_txtTime = "";
 		_specPenaltyTime = 0.5f;
 		_boardsClearCount = 0;
-		_comboBonusTarget = Config.COMBO_TARGET;
+		_comboBonusTarget = GlobalConfig.COMBO_TARGET;
 		setPenaltyTime(0);
 		resetRemainComboTime();
 		clearComboCount();
@@ -62,16 +58,6 @@ public class ArcadeMetadata implements ITEventHandler
 		//update combo time, combo count
 		setRemainComboTime(MathUtils.clamp(this.getRemainComboTime() - delta, 0, Float.MAX_VALUE));
 		if(this.getRemainComboTime() <= 0) clearComboCount();
-	}
-	
-	@Override
-	public void handle(TEvent event) 
-	{
-		if(event instanceof BlockSolvedTEvent)
-		{
-			_score += ((BlockSolvedTEvent)event).Reward;
-			//_comboBar.reset();
-		}
 	}
 	
 	//******************** Getters & Setters  ********************//

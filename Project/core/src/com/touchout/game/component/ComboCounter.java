@@ -2,7 +2,7 @@ package com.touchout.game.component;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.touchout.game.Assets;
+import com.touchout.game.mvc.Assets;
 
 public class ComboCounter extends Actor 
 {

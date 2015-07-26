@@ -1,4 +1,4 @@
-package com.touchout.game.component;
+package com.touchout.game.mvc.view.actor;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;

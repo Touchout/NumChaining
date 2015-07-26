@@ -2,7 +2,7 @@ package com.touchout.game.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.touchout.game.NumChaining;
+import com.touchout.game.mvc.core.NumChaining;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
