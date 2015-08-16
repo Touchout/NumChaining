@@ -57,6 +57,7 @@ public class NumBoard extends Group
 				
 				//Set display number
 				blockActor.Number = blockEntity.Number;
+				blockActor.BgNumber = blockEntity.BgNumber;
 				
 				//Set tint color by status 
 				if(blockEntity.IsLocked)
@@ -67,6 +68,23 @@ public class NumBoard extends Group
 					blockActor.setColor(Color.WHITE);
 			}
 		}
+	}
+	
+	public NumBlock getBlock(int row, int col) {
+		return _blocks[row][col];
+	}
+	
+	public NumBlock getBlock(int number) {
+		for (int row = 0; row < _rowCount; row++) 
+		{
+			for (int col = 0; col < _colCount; col++) 
+			{
+				if(_blocks[row][col].Number == number) 
+					return _blocks[row][col];
+			}
+		}
+		
+		return null;
 	}
 	
 	@Override

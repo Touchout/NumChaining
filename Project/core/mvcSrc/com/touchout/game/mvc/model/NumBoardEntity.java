@@ -55,6 +55,7 @@ public class NumBoardEntity
 	public void solveBlock(int row, int col) 
 	{
 		_cells[row][col].IsSolved = true;
+		_cells[row][col].BgNumber = 4;		
 	}
 	
 	public void renew()
@@ -83,6 +84,7 @@ public class NumBoardEntity
 				temp = _cells[rowToSwap][colToSwap].Number;
 				_cells[rowToSwap][colToSwap].Number = _cells[row][col].Number;
 				_cells[row][col].Number = temp;
+				_cells[row][col].BgNumber = MathUtils.random(3);
 			}
 		});
 	}

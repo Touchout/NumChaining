@@ -1,6 +1,7 @@
 package com.touchout.game.mvc.core;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.touchout.game.mvc.event.GameEvent;
 
 public class ArcadeMetadata
 {
@@ -16,6 +17,7 @@ public class ArcadeMetadata
 	private int _level;
 	private int _boardsClearCount;
 	private int _comboBonusTarget;
+	public GameEvent timePlusEvent = new GameEvent();
 
 	public ArcadeMetadata()
 	{
@@ -57,7 +59,10 @@ public class ArcadeMetadata
 		
 		//update combo time, combo count
 		setRemainComboTime(MathUtils.clamp(this.getRemainComboTime() - delta, 0, Float.MAX_VALUE));
-		if(this.getRemainComboTime() <= 0) clearComboCount();
+		if(this.getRemainComboTime() <= 0){
+			resetLevel();
+			clearComboCount();
+		}
 	}
 	
 	//******************** Getters & Setters  ********************//
@@ -72,6 +77,13 @@ public class ArcadeMetadata
 	
 	public int increaseComboBonusCount() {
 		this._comboBonusCount++;
+		if(_comboBonusCount == _comboBonusTarget)
+		{
+			Assets.PlusSound.play();
+			_gameTime +=2;
+			this.clearComboBonusCount();
+			timePlusEvent.fire(null);
+		}
 		return _comboBonusCount;
 	}
 	
@@ -101,7 +113,7 @@ public class ArcadeMetadata
 	public void resetLevel() 
 	{
 		_level = 1;
-		_remianComboTimeSpec = 2.0f;
+		_remianComboTimeSpec = 1.0f;
 	}
 	
 	public int getLevel() {
@@ -187,7 +199,7 @@ public class ArcadeMetadata
 	
 	public String getScoreString() 
 	{
-		return String.valueOf(_score);
+		return String.format("%d", _score);
 	}
 
 	public void increaseScore(int reward) 

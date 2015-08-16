@@ -4,12 +4,14 @@ import com.touchout.game.mvc.core.NumChaining;
 import com.touchout.game.mvc.model.ArcadeGameModel;
 import com.touchout.game.mvc.model.ArcadeGameModel.GameState;
 import com.touchout.game.mvc.view.ArcadeGameView;
+import com.touchout.game.mvc.view.IView;
+import com.touchout.game.mvc.view.StatisticView;
 
 public class ArcadeGameController 
 {
 	NumChaining _game;
 	ArcadeGameModel _model;
-	ArcadeGameView _view;
+	IView _view;
 
 	public NumChaining getGame() { return _game; }
 	
@@ -20,6 +22,11 @@ public class ArcadeGameController
 		
 		//Initial View
 		_view = new ArcadeGameView(_model, this);
+		//_view = new StatisticView(_model, this);
+	}
+	
+	public void goToStatistics() {
+		_view = new StatisticView(_model, this);
 	}
 	
 	public void resize(int width, int height) 
@@ -51,6 +58,6 @@ public class ArcadeGameController
 	public void restartGame() 
 	{
 		_model.reset();
-		_view.reset();
+		_view = new ArcadeGameView(_model, this);
 	}
 }

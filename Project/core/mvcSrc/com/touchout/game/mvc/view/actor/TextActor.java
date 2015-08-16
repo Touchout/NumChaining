@@ -1,7 +1,10 @@
 package com.touchout.game.mvc.view.actor;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.BitmapFont.TextBounds;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class TextActor extends Actor 
@@ -17,6 +20,19 @@ public class TextActor extends Actor
 
 	public void setText(String _text) {	this._text = _text;	}
 
+	public TextBounds getSize() {
+		return _font.getBounds(_text);
+	}
+	
+	public TextBounds getSize(String str) {
+		return _font.getBounds(str);
+	}
+	
+	public void recalculate()
+	{
+		setBounds(this.getX(), this.getY(),  _font.getBounds(_text).width,  _font.getBounds(_text).height);
+	}
+	
 	public TextActor(BitmapFont font, String text, float x, float y)
 	{
 		super();
@@ -24,6 +40,7 @@ public class TextActor extends Actor
 		_text = text;
 		setX(x);
 		setY(y);
+		recalculate();
 	}
 	
 	@Override

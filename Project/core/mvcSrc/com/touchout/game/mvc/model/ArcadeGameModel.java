@@ -1,10 +1,15 @@
 package com.touchout.game.mvc.model;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 import com.touchout.game.mvc.core.ArcadeMetadata;
+import com.touchout.game.mvc.core.Assets;
 import com.touchout.game.mvc.core.GlobalConfig;
 import com.touchout.game.mvc.core.NumChaining;
 import com.touchout.game.mvc.event.GameEvent;
 import com.touchout.game.mvc.event.GameEventArg;
+import com.touchout.game.mvc.view.actor.NumBlock;
 
 public class ArcadeGameModel 
 {	
@@ -15,6 +20,8 @@ public class ArcadeGameModel
 	private int _targetNumber, _goalNumber; 
 	private GameState _state;
 	private GameEvent _gameOverEvent = new GameEvent();
+	private GameEvent _blockSolvedEvent = new GameEvent();
+	private GameEvent _boardUnlockEvent = new GameEvent();
 
 	public ArcadeMetadata getMetadata() {	return _metadata;}
 
@@ -31,7 +38,10 @@ public class ArcadeGameModel
 		if(_boardEntity.isLocked())
 		{
 			if(_metadata.isPenaltyOver())
+			{
 				_boardEntity.unlock();
+				_boardUnlockEvent.fire(new GameEventArg(null, _targetNumber));
+			}
 		}
 		
 		if(_metadata.getGameTime() <= 0 && _state == GameState.Playing)
@@ -74,6 +84,8 @@ public class ArcadeGameModel
 		//Press on correct block
 		if(_boardEntity.getCells()[row][col].Number == _targetNumber)
 		{
+			Assets.PressSound.play();
+			
 			_metadata.increaseScore(1);
 			_metadata.resetRemainComboTime();
 			_metadata.increaseComboCount();
@@ -81,17 +93,28 @@ public class ArcadeGameModel
 			_boardEntity.solveBlock(row, col);
 			_targetNumber++;
 		
+//			if(_metadata.getComboCount() % 2 == 0 && _metadata.getComboCount() > 0)
+//			{
+//				_metadata.nextLevel();
+//			}
+			
 			if(_boardEntity.getCells()[row][col].Number == _goalNumber)
 			{
 				_boardEntity.renew();
 				_boardEntity.shuffle();
 				_targetNumber = 1;
 			}
+						
+			_blockSolvedEvent.fire(new GameEventArg(null, new Vector2(row, col)));
 		}
 		else //Press on incorrect block
 		{
+			Assets.AlarmSound.play();
+			
 			_metadata.clearComboCount();
+			_metadata.clearComboBonusCount();
 			_metadata.resetPenaltyTime();
+			_metadata.resetLevel();
 			_boardEntity.lock();
 		}
 	}
@@ -104,5 +127,13 @@ public class ArcadeGameModel
 	
 	public GameEvent getGameOverEvent() {
 		return _gameOverEvent;
+	}
+	
+	public GameEvent getBlockSolvedEvent() {
+		return _blockSolvedEvent;
+	}
+	
+	public GameEvent getBoardUnlockEvent() {
+		return _boardUnlockEvent;
 	}
 }

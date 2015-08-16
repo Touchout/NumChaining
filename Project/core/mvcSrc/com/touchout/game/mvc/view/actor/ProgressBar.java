@@ -5,12 +5,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.touchout.game.mvc.core.Assets;
 
 public class ProgressBar extends Actor 
 {
 	//private ParticleEffect _indicator; 
 	private ShapeRenderer _shapeRenderer;
 	public float _max, _min;
+	private float _scaleFactor;
 	private float _current;
 	private boolean _showUpperBound = false;
 	private boolean _alwaysShow = false;
@@ -21,6 +23,7 @@ public class ProgressBar extends Actor
 		_max = 100;
 		_current = 100;
 		_min = 0;
+		_scaleFactor = 1;
 		
 //		_indicator = new ParticleEffect();
 //		_indicator.load(Gdx.files.internal("data/ComboIndicator.p"), Gdx.files.internal("data"));
@@ -43,7 +46,7 @@ public class ProgressBar extends Actor
 	{
 		if(_alwaysShow || _current > _min)
 		{
-			float currentX = this.getX() + this.getWidth() * (_current-_min)/(_max-_min);
+			float currentX = this.getX() + this.getWidth() * (_current-_min)/(_max-_min) * _scaleFactor;
 			
 			//batch.setProjectionMatrix(projection);
 			
@@ -52,17 +55,20 @@ public class ProgressBar extends Actor
 			
 			batch.end();
 			_shapeRenderer.setProjectionMatrix(this.getStage().getCamera().combined);
-			_shapeRenderer.begin(ShapeType.Line);
-			_shapeRenderer.setColor(1, 1, 1, 1);
+			_shapeRenderer.begin(ShapeType.Filled);			
 			//draw ball
-			_shapeRenderer.circle(currentX + 10, this.getY(), 10);
-			//draw line
-			_shapeRenderer.line(this.getX(), this.getY(), currentX, this.getY());
+			//_shapeRenderer.circle(currentX + 10, this.getY(), 10);
 			
 			if(this.isShowUpperBound())
 			{
-				_shapeRenderer.line(this.getRight(), this.getTop(), this.getRight(), this.getY());
+				_shapeRenderer.setColor(Assets.COLOR_GRAY);
+				_shapeRenderer.rectLine(this.getX(), this.getY(), this.getRight(), this.getY(), 5);
 			}
+			
+			//draw line
+			//_shapeRenderer.line(this.getX(), this.getY(), currentX, this.getY());
+			_shapeRenderer.setColor(Assets.COLOR_DARK);
+			_shapeRenderer.rectLine(this.getX(), this.getY(), currentX, this.getY(), 5);
 			
 			_shapeRenderer.end();
 			batch.begin();
@@ -91,7 +97,9 @@ public class ProgressBar extends Actor
 		_min = min;
 	}
 	
-
+	public void setScaleFactor(float value) {
+		_scaleFactor = value;
+	}
 	public void setCurrent(float value)
 	{
 		_current = MathUtils.clamp(value, _min, _max);

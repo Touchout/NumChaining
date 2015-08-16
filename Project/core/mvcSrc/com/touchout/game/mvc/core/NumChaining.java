@@ -47,4 +47,9 @@ public class NumChaining extends Game
 		super.render();
 	}
 	
+	@Override 
+	public void resume () {
+		Assets.Load();
+		super.resume();
+	}
 }
